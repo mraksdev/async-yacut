@@ -9,4 +9,4 @@ app: Flask = Flask(__name__)
 app.config.from_object(Config)
 db: SQLAlchemy = SQLAlchemy(app)
 
-from yacut import models, views  # noqa: E402, F401
+from yacut import api_views, errorhandlers, models, views  # noqa: E402, F401

@@ -1,15 +1,12 @@
 import aiohttp
-from flask import flash, redirect, render_template, request
+from flask import Response, flash, redirect, render_template, request
 
-from yacut import app, db
-from yacut.constants import (
-    DUPLICATE_CUSTOM_ID_MESSAGE,
-    RESERVED_SHORT_ID,
-)
+from yacut import app
+from yacut.constants import DUPLICATE_CUSTOM_ID_MESSAGE
 from yacut.forms import FilesUploadForm, URLMapForm
 from yacut.models import URLMap
 from yacut.services import yandex_disk
-from yacut.utils import get_unique_short_id
+from yacut.utils import create_url_map, is_short_id_taken
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -19,18 +16,10 @@ def index_view() -> str:
     short_link = None
     if form.validate_on_submit():
         custom_id = form.custom_id.data
-        is_taken = custom_id == RESERVED_SHORT_ID or (
-            URLMap.query.filter_by(short=custom_id).first() is not None
-        )
-        if custom_id and is_taken:
+        if custom_id and is_short_id_taken(custom_id):
             flash(DUPLICATE_CUSTOM_ID_MESSAGE)
             return render_template('index.html', form=form)
-        url_map = URLMap(
-            original=form.original_link.data,
-            short=custom_id or get_unique_short_id(),
-        )
-        db.session.add(url_map)
-        db.session.commit()
+        url_map = create_url_map(form.original_link.data, custom_id)
         short_link = '{}{}'.format(request.host_url, url_map.short)
     return render_template('index.html', form=form, short_link=short_link)
 
@@ -62,12 +51,7 @@ async def upload_files(file_storages) -> list[dict[str, str]]:
                 session,
                 disk_path,
             )
-            url_map = URLMap(
-                original=download_link,
-                short=get_unique_short_id(),
-            )
-            db.session.add(url_map)
-            db.session.commit()
+            url_map = create_url_map(download_link)
             uploaded_files.append({
                 'name': file_storage.filename,
                 'short_link': '{}{}'.format(request.host_url, url_map.short),
@@ -90,7 +74,7 @@ async def files_view() -> str:
 
 
 @app.route('/<string:short_id>')
-def redirect_view(short_id: str) -> str:
+def redirect_view(short_id: str) -> Response:
     """Redirect a short link to its original URL."""
     url_map = URLMap.query.filter_by(short=short_id).first_or_404()
     return redirect(url_map.original)

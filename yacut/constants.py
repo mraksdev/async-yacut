@@ -20,3 +20,5 @@ DUPLICATE_CUSTOM_ID_MESSAGE: str = (
 )
 
 RESERVED_SHORT_ID: str = 'files'
+
+NOT_FOUND_MESSAGE: str = 'Указанный id не найден'
