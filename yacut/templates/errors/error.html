@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="text-center">Ошибка {{ code }}</h1>
+<p class="text-center my-4">{{ message }}</p>
+<p class="text-center">
+  <a href="{{ url_for('index_view') }}">На главную</a>
+</p>
+{% endblock %}

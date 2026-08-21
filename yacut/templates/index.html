@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="text-center"><span style="color:red">Ya</span>Cut</h1>
+<p class="text-center my-4">
+  Создайте короткую ссылку автоматически или предложите свой вариант
+</p>
+
+<div class="container">
+  <div class="row my-3">
+    <div class="col-sm"></div>
+    <div class="col-sm">
+      <form method="post">
+        {{ form.hidden_tag() }}
+        <div>
+          {{ form.original_link(class='form-control form-control-lg py-2 mb-1',
+                                placeholder='Длинная ссылка') }}
+          {% for error in form.original_link.errors %}
+            <p><span style="color:red">{{ error }}</span></p>
+          {% endfor %}
+        </div>
+        <div>
+          {{ form.custom_id(class='form-control form-control-lg py-2 mb-1',
+                            placeholder='Ваш вариант короткой ссылки') }}
+          {% for error in form.custom_id.errors %}
+            <p><span style="color:red">{{ error }}</span></p>
+          {% endfor %}
+        </div>
+        <input type="submit" class="btn btn-primary my-3" value="Создать">
+      </form>
+    </div>
+    <div class="col-sm"></div>
+  </div>
+</div>
+
+{% if short_link %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm"></div>
+    <div class="col-sm">
+      <h5 class="text-center">Ваша короткая ссылка готова:</h5>
+      <p class="text-center">
+        <a href="{{ short_link }}">{{ short_link }}</a>
+      </p>
+    </div>
+    <div class="col-sm"></div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

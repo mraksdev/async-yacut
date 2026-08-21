@@ -14,3 +14,9 @@ ALLOWED_CHARACTERS: tuple[str, ...] = tuple(
 INVALID_CUSTOM_ID_MESSAGE: str = (
     'Указано недопустимое имя для короткой ссылки'
 )
+
+DUPLICATE_CUSTOM_ID_MESSAGE: str = (
+    'Предложенный вариант короткой ссылки уже существует.'
+)
+
+RESERVED_SHORT_ID: str = 'files'
