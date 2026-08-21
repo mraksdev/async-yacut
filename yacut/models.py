@@ -12,4 +12,4 @@ class URLMap(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self) -> str:
-        return f'<URLMap {self.original} -> {self.short}>'
+        return '<URLMap {} -> {}>'.format(self.original, self.short)
