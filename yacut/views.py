@@ -1,8 +1,13 @@
+import asyncio
+
 import aiohttp
 from flask import Response, flash, redirect, render_template, request
 
 from yacut import app
-from yacut.constants import DUPLICATE_CUSTOM_ID_MESSAGE
+from yacut.constants import (
+    DUPLICATE_CUSTOM_ID_MESSAGE,
+    UPLOAD_ERROR_MESSAGE,
+)
 from yacut.forms import FilesUploadForm, URLMapForm
 from yacut.models import URLMap
 from yacut.services import yandex_disk
@@ -35,27 +40,38 @@ async def upload_files(file_storages) -> list[dict[str, str]]:
         links.
     """
     uploaded_files: list[dict[str, str]] = []
+    failed_uploads: int = 0
     async with aiohttp.ClientSession() as session:
         for file_storage in file_storages:
-            content = file_storage.read()
-            upload_link = await yandex_disk.fetch_upload_link(
-                session,
-                file_storage.filename,
-            )
-            disk_path = await yandex_disk.upload_file(
-                session,
-                upload_link,
-                content,
-            )
-            download_link = await yandex_disk.fetch_download_link(
-                session,
-                disk_path,
-            )
+            try:
+                content = file_storage.read()
+                upload_link = await yandex_disk.fetch_upload_link(
+                    session,
+                    file_storage.filename,
+                )
+                disk_path = await yandex_disk.upload_file(
+                    session,
+                    upload_link,
+                    content,
+                )
+                download_link = await yandex_disk.fetch_download_link(
+                    session,
+                    disk_path,
+                )
+            except (
+                aiohttp.ClientError,
+                asyncio.TimeoutError,
+                KeyError,
+            ):
+                failed_uploads += 1
+                continue
             url_map = create_url_map(download_link)
             uploaded_files.append({
                 'name': file_storage.filename,
                 'short_link': '{}{}'.format(request.host_url, url_map.short),
             })
+    if failed_uploads:
+        flash(UPLOAD_ERROR_MESSAGE)
     return uploaded_files
 
 

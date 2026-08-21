@@ -22,3 +22,7 @@ DUPLICATE_CUSTOM_ID_MESSAGE: str = (
 RESERVED_SHORT_ID: str = 'files'
 
 NOT_FOUND_MESSAGE: str = 'Указанный id не найден'
+
+UPLOAD_ERROR_MESSAGE: str = (
+    'Не удалось загрузить файлы на Яндекс Диск. Попробуйте позже.'
+)
