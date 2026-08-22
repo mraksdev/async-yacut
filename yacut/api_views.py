@@ -1,7 +1,8 @@
 """API endpoints for the YaCut service."""
 
-from flask import Response, jsonify, request, url_for
+from typing import Union
 
+from flask import Response, jsonify, request, url_for
 from yacut import app
 from yacut.constants import (
     DUPLICATE_CUSTOM_ID_MESSAGE,
@@ -51,14 +52,16 @@ def create_short_link() -> tuple[Response, int]:
 
 
 @app.route('/api/id/<string:short_id>/', methods=('GET',))
-def get_original_url(short_id: str) -> Response | tuple[Response, int]:
+def get_original_url(
+    short_id: str,
+) -> Union[Response, tuple[Response, int]]:
     """Return the original URL stored for the given identifier.
 
     Args:
         short_id: Short identifier from the request path.
 
     Returns:
-        Response | tuple[Response, int]: JSON response with the
+        Union[Response, tuple[Response, int]]: JSON response with the
         original URL and the default status code, or an error message
         with 404.
     """
