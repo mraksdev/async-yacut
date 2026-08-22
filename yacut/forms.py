@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import MultipleFileField, StringField, URLField
+from wtforms import MultipleFileField, StringField, SubmitField, URLField
 from wtforms.validators import DataRequired, Length, Optional, Regexp
 
 from yacut.constants import (
@@ -27,6 +27,7 @@ class URLMapForm(FlaskForm):
             Regexp(CUSTOM_ID_PATTERN, message=INVALID_CUSTOM_ID_MESSAGE),
         ],
     )
+    submit = SubmitField('Создать')
 
 
 class FilesUploadForm(FlaskForm):
@@ -36,3 +37,4 @@ class FilesUploadForm(FlaskForm):
         'Файлы для загрузки',
         validators=[DataRequired(message='Выберите файлы')],
     )
+    submit = SubmitField('Загрузить')

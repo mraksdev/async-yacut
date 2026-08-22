@@ -1,5 +1,7 @@
 """Custom error handlers for the web UI and the API."""
 
+from http import HTTPStatus
+
 from flask import Response, jsonify, render_template, request
 
 from yacut import app
@@ -15,7 +17,7 @@ def is_api_request() -> bool:
     return request.path.startswith('/api/')
 
 
-@app.errorhandler(404)
+@app.errorhandler(HTTPStatus.NOT_FOUND)
 def handle_not_found(error) -> tuple[Response, int]:
     """Render a custom page or JSON body for missing resources.
 
@@ -25,16 +27,17 @@ def handle_not_found(error) -> tuple[Response, int]:
     Returns:
         tuple[Response, int]: Error response with the 404 status code.
     """
+    status_code = int(HTTPStatus.NOT_FOUND)
     if is_api_request():
-        return jsonify({'message': NOT_FOUND_MESSAGE}), 404
+        return jsonify({'message': NOT_FOUND_MESSAGE}), status_code
     return render_template(
         ERROR_TEMPLATE,
-        code=404,
+        code=status_code,
         message=PAGE_NOT_FOUND_MESSAGE,
-    ), 404
+    ), status_code
 
 
-@app.errorhandler(500)
+@app.errorhandler(HTTPStatus.INTERNAL_SERVER_ERROR)
 def handle_server_error(error) -> tuple[Response, int]:
     """Render a custom page or JSON body for server failures.
 
@@ -44,10 +47,11 @@ def handle_server_error(error) -> tuple[Response, int]:
     Returns:
         tuple[Response, int]: Error response with the 500 status code.
     """
+    status_code = int(HTTPStatus.INTERNAL_SERVER_ERROR)
     if is_api_request():
-        return jsonify({'message': SERVER_ERROR_MESSAGE}), 500
+        return jsonify({'message': SERVER_ERROR_MESSAGE}), status_code
     return render_template(
         ERROR_TEMPLATE,
-        code=500,
+        code=status_code,
         message=SERVER_ERROR_MESSAGE,
-    ), 500
+    ), status_code

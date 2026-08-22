@@ -99,3 +99,23 @@ async def fetch_download_link(
     ) as response:
         data = await response.json()
         return data['href']
+
+
+async def upload_file_to_disk(
+    session: aiohttp.ClientSession,
+    file_name: str,
+    content: bytes,
+) -> str:
+    """Run the full upload flow for a single file.
+
+    Args:
+        session: HTTP client session.
+        file_name: Name of the file to upload.
+        content: Raw file bytes.
+
+    Returns:
+        str: Direct download URL of the uploaded file.
+    """
+    upload_link = await fetch_upload_link(session, file_name)
+    disk_path = await upload_file(session, upload_link, content)
+    return await fetch_download_link(session, disk_path)
